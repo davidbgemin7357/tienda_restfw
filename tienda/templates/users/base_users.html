@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block css %}
+
+{% endblock css %}
+
+{% block js %}
+
+<!-- ! CÓDIGO PARA FIREBASE (TOKEN DE GOOGLE) -->
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+
+<!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+
+<!-- Add Firebase products that you want to use -->
+<!-- versión 8.10.0 (penúltima versión, la versión 9 viene modulariazada para nodejs) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<!-- importando axios -->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+    // función login que será invocada en el template login.html
+    function login() {
+          // Your web app's Firebase configuration
+        //   datos de la app de firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAHNcbLc00MkhDmie9bDojUQY-jqf7wjRc",
+            authDomain: "django-pro-8bb7b.firebaseapp.com",
+            projectId: "django-pro-8bb7b",
+            storageBucket: "django-pro-8bb7b.appspot.com",
+            messagingSenderId: "490873590292",
+            appId: "1:490873590292:web:a400c03c6279f45675cd01",
+        };
+        // de esta línea en adelante solo es copiar y pegar
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        var provider = new firebase.auth.GoogleAuthProvider();
+
+        firebase.auth().signInWithPopup(provider).then(function(result) {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        var token = result.credential.idToken;
+        // The signed-in user info.
+        var user = result.user;
+        console.log('Inicio de sesión correcto');
+        console.log(user);
+        // recuperar id token user:
+ 
+        // Envío de token a la vista GoogleLoginView:
+        user.getIdToken().then(
+            function(idToken) {
+                console.log("Este sí es el token:");
+                console.log(idToken)
+
+
+                // * Envío de token desde un template django:
+                var data = {"token_id": idToken}
+                axios.post("/api/google-login/", data).then(
+                    function(response){
+                        console.log(response);
+                    }
+                )
+
+                
+
+            }).catch(function(error) {
+            }
+        );
+        }).catch(function(error) {
+                    // Handle Errors here.
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    // The email of the user's account used.
+                    var email = error.email;
+                    // The firebase.auth.AuthCredential type that was used.
+                    var credential = error.credential;
+                    // ...
+                    console.log(' *********** error **********') // mandara error hasta que no autorizemos el dominio
+                    console.log(error);
+                });
+    }
+</script>
+{% endblock js %}
